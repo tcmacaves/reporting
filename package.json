@@ -25,7 +25,8 @@
     "prepublishOnly": "npm run clean && npm run prettier:check && npm run lint && npm test && npm run build",
     "open:coverage": "open coverage/lcov-report/index.html",
     "predeploy": "npm run build",
-    "deploy": "babel-node --extensions .ts scripts/deploy.ts"
+    "deploy": "babel-node --extensions .ts scripts/deploy.ts",
+    "deploy-only": "babel-node --extensions .ts scripts/deploy.ts"
   },
   "config": {
     "lint": "--cache --ext .js,.ts src scripts test",
@@ -134,6 +135,7 @@
     "@jcoreio/require-env": "^1.0.23",
     "chalk": "^3.0.0",
     "dotenv": "^8.2.0",
+    "fs-extra": "^8.1.0",
     "google-auth-library": "^5.9.1",
     "googleapis": "^47.0.0",
     "inquirer": "^7.0.4",

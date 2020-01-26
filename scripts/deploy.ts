@@ -3,6 +3,7 @@ import {
   deployCloudFormationStack,
   getStackOutputs,
 } from '@jcoreio/cloudformation-tools'
+import * as crypto from 'crypto'
 import * as path from 'path'
 import * as fs from 'fs-extra'
 import AWS from 'aws-sdk'
@@ -19,16 +20,23 @@ async function go(): Promise<void> {
 
   const { BucketName: Bucket } = await getStackOutputs({ StackName: s3stack })
 
-  process.stderr.write('Uploading tcma-reporting.zip to S3...')
-  const deploymentPackageKey = 'tcma-reporting.zip'
+  const zipFileName = 'tcma-reporting.zip'
+  const zipFile = path.resolve(__dirname, '..', zipFileName)
+  const hash = crypto
+    .createHash('md5')
+    .update(await fs.readFile(zipFile))
+    .digest('hex')
+
+  const deploymentPackageKey = zipFileName.replace(/\.zip$/, `-${hash}.zip`)
+  process.stderr.write(
+    `Uploading ${zipFileName} to S3 ${Bucket}/${deploymentPackageKey}...`
+  )
   const s3 = new AWS.S3()
   await s3
     .upload({
       Bucket,
       Key: deploymentPackageKey,
-      Body: fs.createReadStream(
-        path.resolve(__dirname, '..', 'tcma-reporting.zip')
-      ),
+      Body: fs.createReadStream(zipFile),
     })
     .promise()
   process.stderr.write('done!\n\n')
@@ -78,6 +86,29 @@ async function go(): Promise<void> {
               LAMBDA: '1',
             },
           },
+        },
+      },
+      MonthlyRule: {
+        Type: 'AWS::Events::Rule',
+        Properties: {
+          Description: 'Create donations report monthly',
+          ScheduleExpression: 'cron(0 8 1 * ? *)',
+          State: 'ENABLED',
+          Targets: [
+            {
+              Arn: { 'Fn::GetAtt': ['ReportMonthlyDonations', 'Arn'] },
+              Id: 'TargetFunctionV1',
+            },
+          ],
+        },
+      },
+      PermissionForEventsToInvokeLambda: {
+        Type: 'AWS::Lambda::Permission',
+        Properties: {
+          FunctionName: { Ref: 'ReportMonthlyDonations' },
+          Action: 'lambda:InvokeFunction',
+          Principal: 'events.amazonaws.com',
+          SourceArn: { 'Fn::GetAtt': ['MonthlyRule', 'Arn'] },
         },
       },
     },
