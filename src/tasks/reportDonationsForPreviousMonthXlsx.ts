@@ -2,10 +2,11 @@ import reportDonationsXlsx from '../reports/reportDonationsXlsx'
 import getMonthDateRange from '../util/getMonthDateRange'
 
 async function go(): Promise<void> {
-  const now = new Date()
+  const lastMonth = new Date()
+  lastMonth.setMonth(lastMonth.getMonth() - 1)
   const [startDate, endDate] = getMonthDateRange(
-    now.getFullYear(),
-    now.getMonth()
+    lastMonth.getFullYear(),
+    lastMonth.getMonth()
   )
 
   await reportDonationsXlsx({
