@@ -1,7 +1,8 @@
+import 'dotenv/config'
 import reportDonationsXlsx from './reports/reportDonationsXlsx'
 import getMonthDateRange from './util/getMonthDateRange'
 
-async function go(): Promise<void> {
+export async function handler(): Promise<void> {
   const lastMonth = new Date()
   lastMonth.setMonth(lastMonth.getMonth() - 1)
   const [startDate, endDate] = getMonthDateRange(
@@ -19,7 +20,9 @@ async function go(): Promise<void> {
   })
 }
 
-go().catch(error => {
-  console.error(error.stack) // eslint-disable-line no-console
-  process.exit(1)
-})
+if (!module.parent) {
+  handler().catch(error => {
+    console.error(error.stack) // eslint-disable-line no-console
+    process.exit(1)
+  })
+}

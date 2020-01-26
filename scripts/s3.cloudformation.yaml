@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Creates S3 Bucket for tcma-reporting'
+Parameters:
+  BucketName:
+    Type: 'String'
+    Description: 'The name of the bucket'
+    Default: 'private.tcmacaves.org'
+Resources:
+  Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Ref 'BucketName'
+      AccessControl: 'Private'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+Outputs:
+  BucketName:
+    Value: !Ref 'BucketName'

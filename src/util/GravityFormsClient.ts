@@ -1,7 +1,6 @@
 import { pick, once } from 'lodash/fp'
 import request from 'request-promise'
-import { SITE_BASE_URL } from '../config/constants'
-import requireEnv from '@jcoreio/require-env'
+import { getConfig } from '../config'
 
 type Options = {
   baseUrl: string
@@ -357,10 +356,16 @@ export default class GravityFormsClient {
 }
 
 export const defaultGravityFormsClient = once(
-  (): GravityFormsClient =>
-    new GravityFormsClient({
+  (): GravityFormsClient => {
+    const {
+      SITE_BASE_URL,
+      GRAVITY_FORMS_CONSUMER_KEY,
+      GRAVITY_FORMS_CONSUMER_SECRET,
+    } = getConfig()
+    return new GravityFormsClient({
       baseUrl: SITE_BASE_URL,
-      consumerKey: requireEnv('GF_CONSUMER_KEY'),
-      consumerSecret: requireEnv('GF_CONSUMER_SECRET'),
+      consumerKey: GRAVITY_FORMS_CONSUMER_KEY,
+      consumerSecret: GRAVITY_FORMS_CONSUMER_SECRET,
     })
+  }
 )

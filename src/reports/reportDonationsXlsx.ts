@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 
-import * as dotenv from 'dotenv'
 import {
   SelectField,
   defaultGravityFormsClient,
@@ -13,9 +12,12 @@ import {
 import getSelectLabels from '../util/getSelectLabels'
 import { createDonationReport } from './DonationReport'
 import * as XLSX from 'xlsx'
+import { PassThrough } from 'stream'
 import getEntriesForDateRange from '../util/getEntriesForDateRange'
-
-dotenv.config()
+import { google } from 'googleapis'
+import { getConfig } from '../config'
+import { XLSX_MIME_TYPE } from '../config/mimeTypes'
+import { getGoogleAuth } from '../util/google'
 
 export default async function reportDonationsXlsx({
   file,
@@ -50,6 +52,21 @@ export default async function reportDonationsXlsx({
     endDate,
   })
 
-  XLSX.writeFile(report, file)
-  console.error(`Wrote ${file}`) // eslint-disable-line no-console
+  const drive = google.drive({ version: 'v3', auth: await getGoogleAuth() })
+  const { GOOGLE_DRIVE_FOLDER_ID } = getConfig()
+
+  const bufferStream = new PassThrough()
+  bufferStream.end(XLSX.write(report, { type: 'buffer', bookType: 'xlsx' }))
+  await drive.files.create({
+    requestBody: {
+      name: file,
+      mimeType: XLSX_MIME_TYPE,
+      parents: GOOGLE_DRIVE_FOLDER_ID ? [GOOGLE_DRIVE_FOLDER_ID] : null,
+    },
+    media: {
+      mimeType: XLSX_MIME_TYPE,
+      body: bufferStream,
+    },
+  })
+  console.error(`Created ${file} in Google Drive`) // eslint-disable-line no-console
 }
