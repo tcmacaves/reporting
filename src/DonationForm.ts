@@ -1,9 +1,11 @@
 import { Entry } from './GravityFormsClient'
-import { omitBy } from 'lodash'
+import { omitBy, mapKeys } from 'lodash'
 
-export const DONATION_FORM_ID = '3'
+export const DONATION_FORM_ID = 3
+export const PRESERVE_FIELD_ID = 12
+export const FUND_FIELD_ID = 8
 
-interface DonationEntry extends Entry {
+export interface DonationEntry extends Entry {
   name: {
     prefix: string | null
     first: string | null
@@ -55,7 +57,7 @@ export function parseDonationEntry(entry: Entry): DonationEntry {
       country: raw['5.6'] || null,
     },
     phone: raw['6'] || null,
-    donation: raw['7'] ? parseFloat(raw['7']) : null,
+    donation: raw['7'] ? parseFloat(raw['7'].replace('$', '')) : null,
     fund: raw['8'] || null,
     card: {
       number: raw['11.1'] || null,
@@ -65,6 +67,55 @@ export function parseDonationEntry(entry: Entry): DonationEntry {
     honoring: raw['14'] || null,
     donationType: raw['20'] || null,
     cause: raw['21'] || null,
-    monthlyDonation: raw['25'] ? parseFloat(raw['25']) : null,
+    monthlyDonation: raw['25'] ? parseFloat(raw['25'].replace('$', '')) : null,
   }
+}
+
+export type GroupedDonationEntries = {
+  preserve: Record<string, DonationEntry[]>
+  honoring: Record<string, DonationEntry[]>
+  cause: Record<string, DonationEntry[]>
+  other: DonationEntry[]
+}
+
+export function groupDonationEntries(
+  entries: DonationEntry[]
+): GroupedDonationEntries {
+  const grouped: GroupedDonationEntries = {
+    preserve: {},
+    honoring: {},
+    cause: {},
+    other: [],
+  }
+
+  function push(
+    map: Record<string, DonationEntry[]>,
+    key: string,
+    entry: DonationEntry
+  ): void {
+    let entries =
+      map[
+        key
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/, ' ')
+      ]
+    if (!entries) {
+      map[key] = entries = []
+    }
+    entries.push(entry)
+  }
+
+  for (const entry of entries) {
+    const { preserve, honoring, cause } = entry
+    if (preserve) push(grouped.preserve, preserve, entry)
+    else if (honoring) push(grouped.honoring, honoring, entry)
+    else if (cause) push(grouped.cause, cause, entry)
+    else grouped.other.push(entry)
+  }
+
+  grouped.honoring = mapKeys(grouped.honoring, ([entry]) => entry.honoring)
+  grouped.cause = mapKeys(grouped.cause, ([entry]) => entry.cause)
+
+  return grouped
 }

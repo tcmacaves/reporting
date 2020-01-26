@@ -10,16 +10,18 @@ type Options = {
 
 type EntryStatus = 'active' | 'spam' | 'trash'
 
-type EntriesOptions = {
+type Paging = {
+  page_size?: number
+  current_page?: number
+  offset?: number
+}
+
+export interface EntriesOptions {
   _field_ids?: string[]
   _labels?: boolean
-  form_ids?: string[]
+  form_ids?: Array<string | number>
   include?: string[]
-  paging?: {
-    page_size?: number
-    current_page?: number
-    offset?: number
-  }
+  paging?: Paging
   search?: {
     status?: EntryStatus
     mode?: 'all' | 'any'
@@ -133,6 +135,160 @@ export function parseEntry({
   }
 }
 
+export interface Input {
+  id: string
+  label: string
+  name: string
+}
+
+export interface Choice {
+  text: string
+  value: string
+  isSelected: boolean
+  price: string
+}
+
+export interface BaseField {
+  type: string
+  id: number
+  label: string
+  adminLabel: string
+  isRequired: boolean
+  size: string
+  errorMessage: string
+  visibility: 'visible' | 'hidden'
+  inputs: Input[] | null
+  formId: number
+  description: string
+  allowsPrepopulate: boolean
+  inputMask: boolean
+  inputMaskValue: string
+  inputType: string
+  labelPlacement: string
+  descriptionPlacement: string
+  subLabelPlacement: string
+  placeholder: string
+  cssClass: string
+  inputName: string
+  noDuplicates: boolean
+  defaultValue: string
+  conditionalLogic: string
+  productField: string
+  enablePasswordInput: string
+  maxLength: string
+  multipleFiles: boolean
+  maxFiles: string
+  calculationFormula: string
+  calculationRounding: string
+  enableCalculation: string
+  disableQuantity: boolean
+  displayAllCategories: boolean
+  useRichTextEditor: boolean
+  pageNumber: number
+  fields: string
+}
+
+export interface SelectField extends BaseField {
+  type: 'select'
+  id: number
+  choices: Choice[]
+}
+
+export type Field = SelectField | BaseField
+
+export interface Notification {
+  id: string
+  to: string
+  name: string
+  event: string
+  toType: string
+  subject: string
+  message: string
+}
+
+export interface Confirmation {
+  id: string
+  name: string
+  isDefault: boolean
+  type: string
+  message: string
+  url: string
+  pageId: string
+  queryString: string
+}
+
+export interface RawForm {
+  title: string
+  description: string
+  labelPlacement: string
+  descriptionPlacement: string
+  button: {
+    type: string
+    text: string
+    imageUrl: string
+  }
+  fields: Field[]
+  version: string
+  id: number
+  useCurrentUserAsAuthor: boolean
+  postContentTemplateEnabled: boolean
+  postTitleTemplateEnabled: boolean
+  postTitleTemplate: string
+  postContentTemplate: string
+  lastPageButton: string
+  pagination: string | null
+  firstPageCssClass: string | null
+  nextFieldId: number
+  notifications: Record<string, Notification>
+  confirmations: Record<string, Confirmation>
+  is_active: string
+  date_created: string
+  is_trash: string
+}
+
+export interface Form {
+  title: string
+  description: string
+  labelPlacement: string
+  descriptionPlacement: string
+  button: {
+    type: string
+    text: string
+    imageUrl: string
+  }
+  fields: Field[]
+  version: string
+  id: number
+  useCurrentUserAsAuthor: boolean
+  postContentTemplateEnabled: boolean
+  postTitleTemplateEnabled: boolean
+  postTitleTemplate: string
+  postContentTemplate: string
+  lastPageButton: string
+  pagination: string | null
+  firstPageCssClass: string | null
+  nextFieldId: number
+  notifications: Record<string, Notification>
+  confirmations: Record<string, Confirmation>
+  is_active: boolean
+  date_created: Date
+  is_trash: boolean
+}
+
+export function parseForm({
+  is_active,
+  date_created,
+  is_trash,
+  ...rest
+}: RawForm): Form {
+  return {
+    ...rest,
+    is_active: is_active === '1',
+    date_created: new Date(date_created),
+    is_trash: is_trash === '1',
+  }
+}
+
 export default class GravityFormsClient {
   private readonly baseUrl: string
   private readonly Authorization: string
@@ -150,7 +306,7 @@ export default class GravityFormsClient {
     ).toString('base64')}`
   }
 
-  async entries(options: EntriesOptions): Promise<Entries> {
+  async entriesPage(options: EntriesOptions): Promise<Entries> {
     /* eslint-disable @typescript-eslint/no-explicit-any */
     const query: Record<string, any> = pick([
       /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -172,5 +328,28 @@ export default class GravityFormsClient {
       json: true,
     })
     return entries.map(parseEntry)
+  }
+
+  async *entries(_options: EntriesOptions): AsyncIterable<Entry> {
+    const paging: Paging = { ..._options.paging }
+    const options = { ..._options, paging }
+    let entries
+    do {
+      entries = await this.entriesPage(options)
+      yield* entries
+      if (paging.current_page != null) paging.current_page++
+      else paging.offset = (paging.offset || 0) + entries.length
+    } while (entries.length)
+  }
+
+  async getForm(id: number): Promise<Form> {
+    const { Authorization, baseUrl } = this
+
+    const raw = await request({
+      uri: `${baseUrl}/forms/${id}`,
+      headers: { Authorization },
+      json: true,
+    })
+    return parseForm(raw)
   }
 }
