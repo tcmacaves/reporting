@@ -1,10 +1,11 @@
 {
-  "name": "typescript-library-skeleton",
+  "name": "@tcmacaves/reporting",
   "version": "0.0.0-development",
-  "description": "my personal ES2015 library project skeleton",
+  "description": "automated reporting for TCMA online donations etc",
   "main": "index.js",
   "sideEffects": false,
   "scripts": {
+    "start": "babel-node --extensions .ts src/start.ts",
     "lint": "eslint $npm_package_config_lint",
     "lint:fix": "eslint $npm_package_config_lint",
     "lint:watch": "esw --watch $npm_package_config_lint",
@@ -69,17 +70,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jedwards1211/typescript-library-skeleton.git"
+    "url": "https://github.com/tcmacaves/reporting.git"
   },
   "keywords": [
-    "typescript"
+    "tcmacaves"
   ],
   "author": "Andy Edwards",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jedwards1211/typescript-library-skeleton/issues"
+    "url": "https://github.com/tcmacaves/reporting/issues"
   },
-  "homepage": "https://github.com/jedwards1211/typescript-library-skeleton#readme",
+  "homepage": "https://github.com/tcmacaves/reporting#readme",
   "devDependencies": {
     "@babel/cli": "^7.1.5",
     "@babel/core": "^7.1.6",
@@ -99,8 +100,11 @@
     "@jedwards1211/commitlint-config": "^1.0.0",
     "@jedwards1211/eslint-config-typescript": "^1.0.0",
     "@types/chai": "^4.2.0",
+    "@types/lodash": "^4.14.149",
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.12.6",
+    "@types/qs": "^6.9.0",
+    "@types/request-promise": "^4.1.45",
     "babel-eslint": "^10.0.1",
     "babel-plugin-istanbul": "^5.1.0",
     "chai": "^4.2.0",
@@ -122,7 +126,13 @@
     "typescript": "^3.7.2"
   },
   "dependencies": {
-    "@babel/runtime": "^7.1.5"
+    "@babel/runtime": "^7.1.5",
+    "@jcoreio/require-env": "^1.0.23",
+    "dotenv": "^8.2.0",
+    "lodash": "^4.17.15",
+    "qs": "^6.9.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.5"
   },
   "renovate": {
     "extends": [
