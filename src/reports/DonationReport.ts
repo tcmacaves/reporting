@@ -52,21 +52,23 @@ export function createDonationReport(options: {
   data.push(['Start Date:', startDate])
   data.push(['End Date:', endDate])
   data.push([])
-  data.push(['Preserves', sum(map(grouped.preserve, total))])
+  data.push(['PRESERVES', sum(map(grouped.preserve, total))])
   for (const [preserve, label] of Object.entries(preserveLabels)) {
     data.push([label, total(grouped.preserve[preserve])])
   }
-  data.push(['Honoring', sum(map(grouped.honoring, total))])
+  data.push(['HONORING', sum(map(grouped.honoring, total))])
   for (const [honoring, entries] of Object.entries(grouped.honoring)) {
     data.push([honoring, total(entries)])
   }
-  data.push(['Causes', sum(map(grouped.cause, total))])
+  data.push(['CAUSES', sum(map(grouped.cause, total))])
   for (const [cause, entries] of Object.entries(grouped.cause)) {
     data.push([cause, total(entries)])
   }
-  data.push(['Other', total(grouped.other)])
+  data.push(['OTHER', total(grouped.other)])
   data.push(['TOTAL', total(entries)])
 
+  data.push([])
+  data.push(['PRESERVES'])
   data.push([])
   for (const [preserve, entries] of Object.entries(grouped.preserve)) {
     addGroup(data, preserveLabels[preserve], entries)
@@ -74,14 +76,8 @@ export function createDonationReport(options: {
 
   if (!isEmpty(grouped.honoring)) {
     data.push([])
-    data.push(['Honoring'])
-    data.push(Object.keys(grouped.honoring))
-    data.push(
-      Object.keys(grouped.honoring).map(honoring =>
-        total(grouped.honoring[honoring])
-      )
-    )
-
+    data.push(['HONORING'])
+    data.push([])
     for (const [honoring, entries] of Object.entries(grouped.honoring)) {
       addGroup(data, honoring, entries)
     }
@@ -89,11 +85,8 @@ export function createDonationReport(options: {
 
   if (!isEmpty(grouped.cause)) {
     data.push([])
-    data.push(['Causes'])
-    data.push(Object.keys(grouped.cause))
-    data.push(
-      Object.keys(grouped.cause).map(cause => total(grouped.cause[cause]))
-    )
+    data.push(['CAUSES'])
+    data.push([])
     for (const [cause, entries] of Object.entries(grouped.cause)) {
       addGroup(data, cause, entries)
     }
@@ -101,7 +94,7 @@ export function createDonationReport(options: {
 
   if (grouped.other.length) {
     data.push([])
-    addGroup(data, 'Other', grouped.other)
+    addGroup(data, 'OTHER', grouped.other)
   }
 
   const sheet = XLSX.utils.aoa_to_sheet(data)

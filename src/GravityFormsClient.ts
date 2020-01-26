@@ -1,5 +1,7 @@
-import { pick } from 'lodash/fp'
+import { pick, once } from 'lodash/fp'
 import request from 'request-promise'
+import { SITE_BASE_URL } from './constants'
+import requireEnv from '@jcoreio/require-env'
 
 type Options = {
   baseUrl: string
@@ -353,3 +355,12 @@ export default class GravityFormsClient {
     return parseForm(raw)
   }
 }
+
+export const defaultGravityFormsClient = once(
+  (): GravityFormsClient =>
+    new GravityFormsClient({
+      baseUrl: SITE_BASE_URL,
+      consumerKey: requireEnv('GF_CONSUMER_KEY'),
+      consumerSecret: requireEnv('GF_CONSUMER_SECRET'),
+    })
+)
