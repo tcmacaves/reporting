@@ -111,6 +111,8 @@ Navigate to the folder you want.
 
     await addToDotenv({ GOOGLE_DRIVE_FOLDER_ID: match[0] })
   }
+
+  console.log(`Looks like everything is ready to go!`)
 }
 
 go().catch((err: Error) => {
