@@ -6,6 +6,8 @@
   "sideEffects": false,
   "scripts": {
     "start": "babel-node --extensions .ts src/tasks/reportDonationsForPreviousMonthXlsx.ts",
+    "monthly-donations": "babel-node --extensions .ts src/tasks/reportDonationsForPreviousMonthXlsx.ts",
+    "annual-donations": "babel-node --extensions .ts src/tasks/reportDonationsForPreviousYearXlsx.ts",
     "lint": "eslint $npm_package_config_lint",
     "lint:fix": "eslint $npm_package_config_lint",
     "lint:watch": "esw --watch $npm_package_config_lint",
