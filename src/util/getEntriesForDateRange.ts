@@ -1,7 +1,4 @@
-import GravityFormsClient, {
-  EntriesOptions,
-  Entry,
-} from '../GravityFormsClient'
+import GravityFormsClient, { EntriesOptions, Entry } from './GravityFormsClient'
 
 export interface EntriesForDateRangeOptions extends EntriesOptions {
   startDate: Date

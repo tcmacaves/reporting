@@ -1,4 +1,4 @@
-import { Entry } from './GravityFormsClient'
+import { Entry } from '../util/GravityFormsClient'
 import { omitBy, mapKeys } from 'lodash'
 
 export const DONATION_FORM_ID = 3

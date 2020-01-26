@@ -1,5 +1,5 @@
-import reportDonationsXlsx from '../reports/reportDonationsXlsx'
-import getMonthDateRange from '../util/getMonthDateRange'
+import reportDonationsXlsx from './reports/reportDonationsXlsx'
+import getMonthDateRange from './util/getMonthDateRange'
 
 async function go(): Promise<void> {
   const lastMonth = new Date()

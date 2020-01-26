@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx'
-import { DonationEntry, groupDonationEntries } from '../DonationForm'
+import { DonationEntry, groupDonationEntries } from '../forms/DonationForm'
 import { isEmpty, sum, sumBy, map } from 'lodash'
 
 const total = (entries: DonationEntry[] | undefined): number =>

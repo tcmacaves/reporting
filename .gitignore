@@ -2,7 +2,7 @@ coverage
 .nyc_output
 .env
 node_modules
-es
+dist
 .eslintcache
 /*.js
 /*.js.flow

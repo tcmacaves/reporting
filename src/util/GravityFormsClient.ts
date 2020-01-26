@@ -1,6 +1,6 @@
 import { pick, once } from 'lodash/fp'
 import request from 'request-promise'
-import { SITE_BASE_URL } from './constants'
+import { SITE_BASE_URL } from '../config/constants'
 import requireEnv from '@jcoreio/require-env'
 
 type Options = {

@@ -1,5 +1,5 @@
-import reportDonationsXlsx from '../reports/reportDonationsXlsx'
-import getYearDateRange from '../util/getYearDateRange'
+import reportDonationsXlsx from './reports/reportDonationsXlsx'
+import getYearDateRange from './util/getYearDateRange'
 
 async function go(): Promise<void> {
   const lastYear = new Date()

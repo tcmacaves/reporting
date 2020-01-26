@@ -1,12 +1,15 @@
 /* eslint-disable no-console */
 
 import * as dotenv from 'dotenv'
-import { SelectField, defaultGravityFormsClient } from '../GravityFormsClient'
+import {
+  SelectField,
+  defaultGravityFormsClient,
+} from '../util/GravityFormsClient'
 import {
   parseDonationEntry,
   DONATION_FORM_ID,
   PRESERVE_FIELD_ID,
-} from '../DonationForm'
+} from '../forms/DonationForm'
 import getSelectLabels from '../util/getSelectLabels'
 import { createDonationReport } from './DonationReport'
 import * as XLSX from 'xlsx'

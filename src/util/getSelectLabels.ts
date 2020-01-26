@@ -1,4 +1,4 @@
-import { SelectField } from '../GravityFormsClient'
+import { SelectField } from './GravityFormsClient'
 
 export default function getSelectLabels(
   field: SelectField
