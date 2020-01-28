@@ -44,27 +44,6 @@ async function go(): Promise<void> {
     .promise()
   process.stderr.write('done!\n\n')
 
-  async function* obsoleteDeploymentPackages(): AsyncIterable<
-    AWS.S3.ObjectIdentifier
-  > {
-    for await (const { Key } of listObjectsV2(s3, {
-      Bucket,
-      Prefix: lambdaPrefix,
-    })) {
-      if (Key && Key !== deploymentPackageKey) {
-        yield { Key }
-      }
-    }
-  }
-  process.stderr.write(`Deleting old lambdas deployment packages in S3...`)
-  await deleteObjects(s3, {
-    Bucket,
-    Delete: {
-      Objects: obsoleteDeploymentPackages(),
-    },
-  })
-  process.stderr.write('done!\n\n')
-
   const lambdaStack = 'tcma-reporting-lambda'
 
   const lambdaTemplate = {
@@ -91,17 +70,17 @@ async function go(): Promise<void> {
           RoleName: 'LambdaExecutionRole',
         },
       },
-      ReportMonthlyDonations: {
+      CreateReport: {
         Type: 'AWS::Lambda::Function',
         Properties: {
           Code: {
             S3Bucket: Bucket,
             S3Key: deploymentPackageKey,
           },
-          FunctionName: 'ReportDonationsForPreviousMonth',
-          Description: 'Reports donations for the previous month',
-          Handler: 'reportDonationsForPreviousMonthXlsx.handler',
+          FunctionName: 'CreateReport',
+          Description: 'Creates various reports',
           Runtime: 'nodejs12.x',
+          Handler: 'index.handler',
           Role: { 'Fn::GetAtt': ['Role', 'Arn'] },
           Timeout: 900,
           Environment: {
@@ -115,13 +94,25 @@ async function go(): Promise<void> {
       MonthlyRule: {
         Type: 'AWS::Events::Rule',
         Properties: {
-          Description: 'Create donations report monthly',
+          Description: 'Create monthly donations and preserve visit reports',
           ScheduleExpression: 'cron(0 8 1 * ? *)',
           State: 'ENABLED',
           Targets: [
             {
-              Arn: { 'Fn::GetAtt': ['ReportMonthlyDonations', 'Arn'] },
-              Id: 'TargetFunctionV1',
+              Arn: { 'Fn::GetAtt': ['CreateReport', 'Arn'] },
+              Id: 'MonthlyDonations',
+              Input: JSON.stringify({
+                report: 'donations',
+                month: 'previous',
+              }),
+            },
+            {
+              Arn: { 'Fn::GetAtt': ['CreateReport', 'Arn'] },
+              Id: 'MonthlyPreserveVisits',
+              Input: JSON.stringify({
+                report: 'preserveVisits',
+                month: 'previous',
+              }),
             },
           ],
         },
@@ -129,7 +120,7 @@ async function go(): Promise<void> {
       PermissionForEventsToInvokeLambda: {
         Type: 'AWS::Lambda::Permission',
         Properties: {
-          FunctionName: { Ref: 'ReportMonthlyDonations' },
+          FunctionName: { Ref: 'CreateReport' },
           Action: 'lambda:InvokeFunction',
           Principal: 'events.amazonaws.com',
           SourceArn: { 'Fn::GetAtt': ['MonthlyRule', 'Arn'] },
@@ -143,6 +134,29 @@ async function go(): Promise<void> {
     Template: lambdaTemplate,
     Capabilities: ['CAPABILITY_NAMED_IAM'],
   })
+  process.stderr.write('done!\n\n')
+
+  async function* obsoleteDeploymentPackages(): AsyncIterable<
+    AWS.S3.ObjectIdentifier
+  > {
+    for await (const { Key } of listObjectsV2(s3, {
+      Bucket,
+      Prefix: lambdaPrefix,
+    })) {
+      if (Key && Key !== deploymentPackageKey) {
+        yield { Key }
+      }
+    }
+  }
+  process.stderr.write(`Deleting old lambdas deployment packages in S3...\n`)
+  for await (const object of deleteObjects(s3, {
+    Bucket,
+    Delete: {
+      Objects: obsoleteDeploymentPackages(),
+    },
+  })) {
+    process.stderr.write(`Deleted ${object.Key}\n`)
+  }
   process.stderr.write('done!\n\n')
 }
 

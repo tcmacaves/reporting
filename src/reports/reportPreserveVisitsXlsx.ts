@@ -5,16 +5,16 @@ import {
   defaultGravityFormsClient,
 } from '../util/GravityFormsClient'
 import {
-  parseDonationEntry,
-  DONATION_FORM_ID,
+  parsePreserveVisitEntry,
+  PRESERVE_VISIT_FORM_ID,
   PRESERVE_FIELD_ID,
-} from '../forms/DonationForm'
+} from '../forms/PreserveVisitForm'
 import getSelectLabels from '../util/getSelectLabels'
-import { createDonationReport } from './DonationReport'
+import { createPreserveVisitReport } from './PreserveVisitReport'
 import slurp from '../util/slurp'
 import outputXlsx from '../util/outputXlsx'
 
-export default async function reportDonationsXlsx({
+export default async function reportPreserveVisitsXlsx({
   file,
   startDate,
   endDate,
@@ -25,7 +25,7 @@ export default async function reportDonationsXlsx({
 }): Promise<void> {
   const client = defaultGravityFormsClient()
 
-  const form = await client.getForm(DONATION_FORM_ID)
+  const form = await client.getForm(PRESERVE_VISIT_FORM_ID)
   const preserveField = form.fields.find(f => f.id === PRESERVE_FIELD_ID)
   if (!preserveField || preserveField.type !== 'select') {
     throw new Error('failed to get preserve names')
@@ -35,16 +35,16 @@ export default async function reportDonationsXlsx({
   const entries = (
     await slurp(
       client.entries({
-        form_ids: [DONATION_FORM_ID],
+        form_ids: [PRESERVE_VISIT_FORM_ID],
         search: {
           start_date: startDate,
           end_date: endDate,
         },
       })
     )
-  ).map(parseDonationEntry)
+  ).map(parsePreserveVisitEntry)
 
-  const report = createDonationReport({
+  const report = createPreserveVisitReport({
     entries,
     preserveLabels,
     startDate,

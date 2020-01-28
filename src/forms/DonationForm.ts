@@ -1,34 +1,19 @@
 import { Entry } from '../util/GravityFormsClient'
 import { omitBy, mapKeys } from 'lodash'
+import { NameFields, AddressFields, CardFields } from './CommonFields'
 
 export const DONATION_FORM_ID = 3
 export const PRESERVE_FIELD_ID = 12
 export const FUND_FIELD_ID = 8
 
 export interface DonationEntry extends Entry {
-  name: {
-    prefix: string | null
-    first: string | null
-    middle: string | null
-    last: string | null
-    suffix: string | null
-  }
+  name: NameFields
   email: string | null
-  address: {
-    street: string | null
-    line2: string | null
-    city: string | null
-    state: string | null
-    zip: string | null
-    country: string | null
-  }
+  address: AddressFields
   phone: string | null
   donation: number | null
   fund: 'general' | 'preserve' | 'memorial' | 'other' | null
-  card: {
-    number: string
-    type: string
-  }
+  card: CardFields
   preserve: string | null
   honoring: string | null
   cause: string | null
