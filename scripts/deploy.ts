@@ -3,15 +3,19 @@ import {
   deployCloudFormationStack,
   getStackOutputs,
 } from '@jcoreio/cloudformation-tools'
-import * as crypto from 'crypto'
+import md5 from 'md5-file/promise'
 import * as path from 'path'
 import * as fs from 'fs-extra'
 import AWS from 'aws-sdk'
 import { getConfig } from '../src/config'
+import {
+  listObjectsV2,
+  deleteObjects,
+} from '@jcoreio/aws-sdk-async-iterables/s3'
 
 async function go(): Promise<void> {
   process.stderr.write('Creating S3 bucket...')
-  const s3stack = 'tcma-s3-internal'
+  const s3stack = 'tcma-reporting-s3'
   await deployCloudFormationStack({
     StackName: s3stack,
     TemplateFile: path.resolve(__dirname, 's3.cloudformation.yaml'),
@@ -22,14 +26,13 @@ async function go(): Promise<void> {
 
   const zipFileName = 'tcma-reporting.zip'
   const zipFile = path.resolve(__dirname, '..', zipFileName)
-  const hash = crypto
-    .createHash('md5')
-    .update(await fs.readFile(zipFile))
-    .digest('hex')
+  const hash = await md5(zipFile)
 
-  const deploymentPackageKey = zipFileName.replace(/\.zip$/, `-${hash}.zip`)
+  const lambdaPrefix = 'lambda/'
+  const deploymentPackageKey =
+    lambdaPrefix + zipFileName.replace(/\.zip$/, `-${hash}.zip`)
   process.stderr.write(
-    `Uploading ${zipFileName} to S3 ${Bucket}/${deploymentPackageKey}...`
+    `Uploading ${zipFileName} to S3: ${Bucket}/${deploymentPackageKey}...`
   )
   const s3 = new AWS.S3()
   await s3
@@ -39,6 +42,27 @@ async function go(): Promise<void> {
       Body: fs.createReadStream(zipFile),
     })
     .promise()
+  process.stderr.write('done!\n\n')
+
+  async function* obsoleteDeploymentPackages(): AsyncIterable<
+    AWS.S3.ObjectIdentifier
+  > {
+    for await (const { Key } of listObjectsV2(s3, {
+      Bucket,
+      Prefix: lambdaPrefix,
+    })) {
+      if (Key && Key !== deploymentPackageKey) {
+        yield { Key }
+      }
+    }
+  }
+  process.stderr.write(`Deleting old lambdas deployment packages in S3...`)
+  await deleteObjects(s3, {
+    Bucket,
+    Delete: {
+      Objects: obsoleteDeploymentPackages(),
+    },
+  })
   process.stderr.write('done!\n\n')
 
   const lambdaStack = 'tcma-reporting-lambda'

@@ -13,11 +13,11 @@ import getSelectLabels from '../util/getSelectLabels'
 import { createDonationReport } from './DonationReport'
 import * as XLSX from 'xlsx'
 import { PassThrough } from 'stream'
-import getEntriesForDateRange from '../util/getEntriesForDateRange'
 import { google } from 'googleapis'
 import { getConfig } from '../config'
 import { XLSX_MIME_TYPE } from '../config/mimeTypes'
 import { getGoogleAuth } from '../util/google'
+import slurp from '../util/slurp'
 
 export default async function reportDonationsXlsx({
   file,
@@ -38,11 +38,15 @@ export default async function reportDonationsXlsx({
   const preserveLabels = getSelectLabels(preserveField as SelectField)
 
   const entries = (
-    await getEntriesForDateRange(client, {
-      form_ids: [DONATION_FORM_ID],
-      startDate,
-      endDate,
-    })
+    await slurp(
+      client.entries({
+        form_ids: [DONATION_FORM_ID],
+        search: {
+          start_date: startDate,
+          end_date: endDate,
+        },
+      })
+    )
   ).map(parseDonationEntry)
 
   const report = createDonationReport({

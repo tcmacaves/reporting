@@ -4,7 +4,7 @@ Parameters:
   BucketName:
     Type: 'String'
     Description: 'The name of the bucket'
-    Default: 'private.tcmacaves.org'
+    Default: 'reporting.tcmacaves.org'
 Resources:
   Bucket:
     Type: 'AWS::S3::Bucket'

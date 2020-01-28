@@ -963,6 +963,14 @@
   dependencies:
     find-up "^2.1.0"
 
+"@jcoreio/aws-sdk-async-iterables@^2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@jcoreio/aws-sdk-async-iterables/-/aws-sdk-async-iterables-2.1.1.tgz#7af00a8335593e791619f44805aab702e999522a"
+  integrity sha512-TC5gH9QcgWHizYXvU4WKV9NoXx1VYWnZDnGsGecwPKvvFuuV7G0wv/lgoZ3Ob9VOsBVpY214hNj9+hD1Je5vMg==
+  dependencies:
+    "@babel/runtime" "^7.1.5"
+    aws-sdk "^2.585.0"
+
 "@jcoreio/cloudformation-tools@^2.8.0":
   version "2.8.0"
   resolved "https://registry.yarnpkg.com/@jcoreio/cloudformation-tools/-/cloudformation-tools-2.8.0.tgz#f008d1905d8011ac220204066f086224e575329c"
@@ -1070,6 +1078,11 @@
   version "4.14.149"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.149.tgz#1342d63d948c6062838fbf961012f74d4e638440"
   integrity sha512-ijGqzZt/b7BfzcK9vTrS6MFljQRPn5BFWOx8oE0GYxribu6uV+aA9zZuXI1zc/etK9E8nrgdoF2+LgUw7+9tJQ==
+
+"@types/md5-file@^4.0.1":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@types/md5-file/-/md5-file-4.0.1.tgz#5e6cfb7949dc375049b8f6fd8f91adacfc176c63"
+  integrity sha512-uK6vlo/LJp6iNWinpSzZwMe8Auzs0UYxesm7OGfQS3oz6PJciHtrKcqVOGk4wjYKawrl234vwNWvHyXH1ZzRyQ==
 
 "@types/mocha@^5.2.7":
   version "5.2.7"
@@ -1484,7 +1497,7 @@ atob@^2.1.2:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-aws-sdk@^2.392.0, aws-sdk@^2.610.0:
+aws-sdk@^2.392.0, aws-sdk@^2.585.0, aws-sdk@^2.610.0:
   version "2.610.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.610.0.tgz#a8633204bed83df763095824f8110ced4a717d2a"
   integrity sha512-kqcoCTKjbxrUo2KeLQR2Jw6l4PvkbHXSDk8KqF2hXcpHibiOcMXZZPVe9X+s90RC/B2+qU95M7FImp9ByMcw7A==
@@ -4647,6 +4660,11 @@ matcher@^1.0.0:
   integrity sha512-+BmqxWIubKTRKNWx/ahnCkk3mG8m7OturVlqq6HiojGJTd5hVYbgZm6WzcYPCoB+KBT4Vd6R7WSRG2OADNaCjg==
   dependencies:
     escape-string-regexp "^1.0.4"
+
+md5-file@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/md5-file/-/md5-file-4.0.0.tgz#f3f7ba1e2dd1144d5bf1de698d0e5f44a4409584"
+  integrity sha512-UC0qFwyAjn4YdPpKaDNw6gNxRf7Mcx7jC1UGCY4boCzgvU2Aoc1mOGzTtrjjLKhM5ivsnhoKpQVxKPp+1j1qwg==
 
 mem@^4.0.0:
   version "4.3.0"

@@ -26,6 +26,8 @@ export interface EntriesOptions {
   search?: {
     status?: EntryStatus
     mode?: 'all' | 'any'
+    start_date?: Date
+    end_date?: Date
     field_filters?: Array<{
       key: string
       value: string
@@ -290,6 +292,13 @@ export function parseForm({
   }
 }
 
+const formatDate = (date: Date): string =>
+  [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, '0'),
+    String(date.getDate()).padStart(2, '0'),
+  ].join('-')
+
 export default class GravityFormsClient {
   private readonly baseUrl: string
   private readonly Authorization: string
@@ -314,11 +323,18 @@ export default class GravityFormsClient {
       'form_ids',
       'include',
       'paging',
-      'search',
       'sorting',
     ])(options)
     if (options._field_ids) query._field_ids = options._field_ids.join(',')
     if (options._labels) query._labels = '1'
+    const { search } = options
+    if (search) {
+      const { start_date, end_date, ...rest } = search
+      query.search = rest
+      if (start_date) query.search.start_date = formatDate(start_date)
+      if (end_date) query.search.end_date = formatDate(end_date)
+      query.search = JSON.stringify(query.search)
+    }
 
     const { Authorization, baseUrl } = this
 
