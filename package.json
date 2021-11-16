@@ -115,7 +115,7 @@
     "@types/node": "^12.12.6",
     "@types/qs": "^6.9.0",
     "@types/request-promise": "^4.1.45",
-    "aws-sdk": "^2.610.0",
+    "aws-sdk": "^2.814.0",
     "babel-eslint": "^10.0.1",
     "babel-plugin-istanbul": "^5.1.0",
     "chai": "^4.2.0",
